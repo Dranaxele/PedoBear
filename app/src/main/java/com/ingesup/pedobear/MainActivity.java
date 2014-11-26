@@ -1,7 +1,15 @@
 package com.ingesup.pedobear;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.GpsStatus;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -21,6 +29,8 @@ import java.lang.reflect.Method;
 
 public class MainActivity extends ActionBarActivity {
 
+    String position = " ";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,11 +38,12 @@ public class MainActivity extends ActionBarActivity {
         Button btAction = (Button) findViewById(R.id.button);
         String texte = "";
 
+
         btAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO: Entrer les fonctions et les Scripts à executé
-                recup();
+                recupGPS();
                 //planeMode();
             }
         });
@@ -61,8 +72,22 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void recup(){
-        sendSMS("Test de l'envoie");
+    public void recupGPS(){
+        LocationManager locationManager = (LocationManager)getSystemService( Context.LOCATION_SERVICE );
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy( Criteria.ACCURACY_COARSE );
+        String provider = locationManager.getBestProvider( criteria, true );
+
+        if ( provider == null ) {
+            System.out.println("Problème");
+            return;
+        }
+        Location lastLocation = locationManager.getLastKnownLocation(provider);
+        double latitude = lastLocation.getLatitude();
+        double longitude = lastLocation.getLongitude();
+
+        position = "Latitude :" + latitude + "\n" + "Longitude :" + longitude;
+        sendSMS(position);
     }
 
     protected void sendSMS(String recipient) {
@@ -77,7 +102,6 @@ public class MainActivity extends ActionBarActivity {
                     Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
-
     }
 
 

